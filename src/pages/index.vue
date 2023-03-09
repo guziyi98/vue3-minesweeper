@@ -1,6 +1,7 @@
 <!-- eslint-disable no-alert -->
 <!-- eslint-disable no-console -->
 <script setup lang="ts">
+import type { BlockState } from '~/types'
 const directions = [
   [1, 1],
   [1, 0],
@@ -25,17 +26,10 @@ const numberColors = [
 defineOptions({
   name: 'IndexPage',
 })
-interface BlockState {
-  x: number
-  y: number
-  revealed: boolean
-  adjacentMines: number
-  mine?: boolean
-  flagged?: boolean
-}
-const Width = 10
-const Height = 10
-const state = reactive(Array.from({ length: Height },
+
+const Width = 5
+const Height = 5
+const state = ref(Array.from({ length: Height },
   (_, y) => Array.from({ length: Width },
     (_, x): BlockState => ({
       x,
@@ -44,16 +38,18 @@ const state = reactive(Array.from({ length: Height },
       revealed: false,
     }))))
 let mineGenerated = false
-const dev = true
+const dev = false
 
 function getBlockClass(block: BlockState) {
-  if (!block.revealed)
+  if (block.flagged)
     return 'bg-gray-500/10'
+  if (!block.revealed)
+    return 'bg-gray-500/10 hover: bg-gray/10'
   return block.mine ? 'bg-red-500/50' : numberColors[block.adjacentMines]
 }
 
 function generateMines(initial: BlockState) {
-  for (const row of state) {
+  for (const row of state.value) {
     for (const block of row) {
       if (Math.abs(initial.x - block.x) < 1)
         continue
@@ -66,7 +62,7 @@ function generateMines(initial: BlockState) {
 }
 
 function updateNumbers() {
-  state.forEach((row, y) => {
+  state.value.forEach((row, y) => {
     row.forEach((block, x) => {
       if (block.mine)
         return
@@ -84,11 +80,11 @@ function getSiblings(block: BlockState) {
     const y2 = block.y + dy
     if (x2 < 0 || x2 >= Width || y2 < 0 || y2 >= Height)
       return undefined
-    return state[y2][x2]
+    return state.value[y2][x2]
   }).filter(Boolean) as BlockState[]
 }
 
-const onClick = (block: BlockState) => {
+function onClick(e: MouseEvent, block: BlockState) {
   if (!mineGenerated) {
     generateMines(block)
     mineGenerated = true
@@ -99,6 +95,12 @@ const onClick = (block: BlockState) => {
     alert('BOOM!!!')
   expandZero(block)
 }
+
+function onRightClick(block: BlockState) {
+  if (block.revealed)
+    return
+  block.flagged = !block.flagged
+}
 function expandZero(block: BlockState) {
   if (block.adjacentMines)
     return
@@ -108,6 +110,18 @@ function expandZero(block: BlockState) {
       expandZero(s)
     }
   })
+}
+watchEffect(checkGameState)
+function checkGameState() {
+  if (!mineGenerated)
+    return
+  const blocks = state.value.flat()
+  if (blocks.every(block => block.revealed || block.flagged)) {
+    if (blocks.some(block => block.flagged && !block.mine))
+      alert('you cheat')
+    else
+      alert('you win')
+  }
 }
 </script>
 
@@ -120,16 +134,22 @@ function expandZero(block: BlockState) {
         items-center
       >
         <button
-          v-for="item, x in row" :key="x" w-10 h-10
+          v-for="item, x in row"
+          :key="x"
+          w-10
+          h-10
           m="0.5"
-          hover="bg-gray/10"
           border="1 gray-400/10"
           :class="getBlockClass(item)"
           flex="~"
           justify-center
           items-center
-          @click="onClick(item)"
+          @click="onClick($event, item)"
+          @contextmenu.prevent="onRightClick(item)"
         >
+          <template v-if="item.flagged">
+            <div i-mdi-flag text-red />
+          </template>
           <template v-if="item.revealed || dev">
             <div v-if="item.mine" i-mdi-mine />
             <div v-else>
