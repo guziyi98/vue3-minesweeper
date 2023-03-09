@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@antfu/eslint-config': ^0.36.0
   '@iconify-json/carbon': ^1.1.16
+  '@iconify-json/mdi': ^1.1.49
   '@intlify/unplugin-vue-i18n': ^0.8.2
   '@types/markdown-it-link-attributes': ^3.0.1
   '@types/nprogress': ^0.2.0
@@ -63,6 +64,7 @@ dependencies:
 devDependencies:
   '@antfu/eslint-config': 0.36.0_ycpbpc6yetojsgtrx3mwntkhsu
   '@iconify-json/carbon': 1.1.16
+  '@iconify-json/mdi': 1.1.49
   '@intlify/unplugin-vue-i18n': 0.8.2_vue-i18n@9.2.2
   '@types/markdown-it-link-attributes': 3.0.1
   '@types/nprogress': 0.2.0
@@ -1774,6 +1776,12 @@ packages:
 
   /@iconify-json/carbon/1.1.16:
     resolution: {integrity: sha512-AD8bcnRSGA0WfcGEass2FbA0sagrUzrpFx5WchuDy3uf7yKBWumdypdQK121DH321fQDl5+zZQ26T6gC9knwUQ==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
+  /@iconify-json/mdi/1.1.49:
+    resolution: {integrity: sha512-FT8LGtl6GzPo2gD/uAlI934HuasoCMBJ48DXRj5JcQzoiI0hWzdo2/Qjax334nK/TBsU2B282PiQCacQdCJgcg==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: true
